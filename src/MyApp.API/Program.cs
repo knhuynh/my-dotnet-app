@@ -16,7 +16,7 @@ if (app.Environment.IsDevelopment())
 
 // app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Hello .NET Docker!");
+app.MapGet("/", () => "Hello .NET Docker Container Cache!");
 
 var summaries = new[]
 {

@@ -9,6 +9,7 @@ services:
       - "8080:8080"
     volumes:
       - ./src/MyApp.API:/app
+      - ~/.nuget/packages:/root/.nuget/packages
     environment:
       ASPNETCORE_ENVIRONMENT: Development
     depends_on:
