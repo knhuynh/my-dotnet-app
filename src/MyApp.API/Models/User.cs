@@ -2,7 +2,6 @@ namespace MyApp.API.Models;
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-
 [Table("users")]
 public class User
 {
