@@ -10,6 +10,7 @@ Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddControllersWithViews();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -29,10 +30,19 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", () => "Hello .NET Docker Container Hot Reload!");
 
+app.MapGet("/db-test", async (AppDbContext db) =>
+{
+    return await db.Database.CanConnectAsync();
+});
+
 app.MapGet("/users", async (AppDbContext db) =>
 {
     return await db.Users.ToListAsync();
 });
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Todo}/{action=Index}");
 
 app.MapControllers();
 

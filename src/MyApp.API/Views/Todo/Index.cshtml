@@ -1,0 +1,207 @@
+@using MyApp.API.Models
+@model List<TodoItem>
+
+<style>
+    .todo-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .todo-button {
+        border: 1px solid #d0d5dd;
+        border-radius: 6px;
+        background: #fff;
+        color: #1f2937;
+        cursor: pointer;
+        font: inherit;
+        padding: 8px 12px;
+    }
+
+    .todo-button:hover {
+        background: #f9fafb;
+    }
+
+    .todo-button-primary {
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+    }
+
+    .todo-button-primary:hover {
+        background: #1d4ed8;
+    }
+
+    .todo-modal {
+        align-items: center;
+        background: rgba(15, 23, 42, 0.55);
+        display: none;
+        inset: 0;
+        justify-content: center;
+        padding: 24px;
+        position: fixed;
+        z-index: 1000;
+    }
+
+    .todo-modal.is-open {
+        display: flex;
+    }
+
+    .todo-modal-dialog {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.22);
+        max-width: 480px;
+        padding: 24px;
+        width: 100%;
+    }
+
+    .todo-modal-header {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 18px;
+    }
+
+    .todo-modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .todo-modal-close {
+        align-items: center;
+        background: transparent;
+        border: 0;
+        border-radius: 6px;
+        cursor: pointer;
+        display: inline-flex;
+        font-size: 24px;
+        height: 36px;
+        justify-content: center;
+        line-height: 1;
+        width: 36px;
+    }
+
+    .todo-modal-close:hover {
+        background: #f3f4f6;
+    }
+
+    .todo-field {
+        display: grid;
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+
+    .todo-field input,
+    .todo-field textarea {
+        border: 1px solid #d0d5dd;
+        border-radius: 6px;
+        font: inherit;
+        padding: 9px 10px;
+        width: 100%;
+    }
+
+    .todo-field textarea {
+        min-height: 96px;
+        resize: vertical;
+    }
+</style>
+
+<form id="todoForm" method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="checkAll" /></th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" name="ids" value="@item.Id" />
+                    </td>
+                    <td>@item.Title</td>
+                    <td>@item.Description</td>
+                    <td>
+                        @(item.IsCompleted ? "✅ Done" : "⏳ Pending")
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="todo-actions">
+        <button class="todo-button todo-button-primary" type="button" id="openTodoModal">➕ Tạo mới</button>
+        <button class="todo-button" type="submit" formaction="/Todo/Complete">✅ Hoàn thành</button>
+        <button class="todo-button" type="submit" formaction="/Todo/Delete">🗑 Xoá</button>
+    </div>
+</form>
+
+<div class="todo-modal" id="todoModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="todoModalTitle">
+    <div class="todo-modal-dialog">
+        <div class="todo-modal-header">
+            <h2 class="todo-modal-title" id="todoModalTitle">Tạo mới Todo</h2>
+            <button class="todo-modal-close" type="button" id="closeTodoModal" aria-label="Đóng">&times;</button>
+        </div>
+
+        <form method="post" action="/Todo/Create">
+            <div class="todo-field">
+                <label for="todoTitle">Title</label>
+                <input id="todoTitle" type="text" name="Title" required />
+            </div>
+
+            <div class="todo-field">
+                <label for="todoDescription">Description</label>
+                <textarea id="todoDescription" name="Description"></textarea>
+            </div>
+
+            <div class="todo-actions">
+                <button class="todo-button todo-button-primary" type="submit">Lưu</button>
+                <button class="todo-button" type="button" id="cancelTodoModal">Đóng</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const todoModal = document.getElementById("todoModal");
+    const todoTitleInput = document.getElementById("todoTitle");
+
+    function openModal() {
+        todoModal.classList.add("is-open");
+        todoModal.setAttribute("aria-hidden", "false");
+        todoTitleInput.focus();
+    }
+
+    function closeModal() {
+        todoModal.classList.remove("is-open");
+        todoModal.setAttribute("aria-hidden", "true");
+    }
+
+    document.getElementById("openTodoModal").addEventListener("click", openModal);
+    document.getElementById("closeTodoModal").addEventListener("click", closeModal);
+    document.getElementById("cancelTodoModal").addEventListener("click", closeModal);
+
+    todoModal.addEventListener("click", function (event) {
+        if (event.target === todoModal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && todoModal.classList.contains("is-open")) {
+            closeModal();
+        }
+    });
+
+    // Check all
+    document.getElementById("checkAll").addEventListener("change", function () {
+        const checkboxes = document.querySelectorAll("input[name='ids']");
+        checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+</script>
