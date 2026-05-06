@@ -12,6 +12,7 @@ services:
       - ~/.nuget/packages:/root/.nuget/packages
     environment:
       ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: server=db;port=3306;database=myapp;user=root;password=root
     depends_on:
       - db
 
@@ -19,6 +20,7 @@ services:
     image: mysql:8.0
     container_name: mysql_db
     restart: always
+    command: --skip-name-resolve
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: myapp
