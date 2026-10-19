@@ -1,12 +1,12 @@
+namespace MyApp.API.Controllers;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApp.API.Data;
 using MyApp.API.Models;
 
-namespace MyApp.API.Controllers;
-
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/[controller]")] // [controller] là mã giả sẽ được thay bằng tên của controller là: api/users
 public class UsersController : ControllerBase
 {
     private readonly AppDbContext _db;
@@ -77,8 +77,9 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
+    // GET: api/users/search?name=John&page=1
     [HttpGet("search")]
-    public IActionResult Search(string name, int page = 1)  
+    public IActionResult Search(string name, int page = 1)
     {
         Console.WriteLine($"name = '{name}'");
         var pageSize = 10;
@@ -91,6 +92,7 @@ public class UsersController : ControllerBase
         return Ok(users);
     }
 
+    // POST: api/users/upload
     [HttpPost("upload")]
     public IActionResult Upload([FromForm] IFormFile file)
     {

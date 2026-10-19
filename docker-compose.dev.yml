@@ -13,6 +13,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: server=db;port=3306;database=myapp;user=root;password=root
+      Jwt__Key: ${JWT_KEY}
     depends_on:
       - db
 

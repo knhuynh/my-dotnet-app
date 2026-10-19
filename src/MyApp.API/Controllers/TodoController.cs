@@ -1,3 +1,5 @@
+namespace MyApp.API.Controllers;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApp.API.Data;
