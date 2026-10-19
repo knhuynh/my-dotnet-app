@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApp.API.Data;
 using MyApp.API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")] // [controller] là mã giả sẽ được thay bằng tên của controller là: api/users
 public class UsersController : ControllerBase
 {
@@ -20,7 +22,15 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        var users = await _db.Users.ToListAsync();
+        var users = await _db.Users
+            .Select(u => new
+            {
+                u.Id,
+                u.Name,
+                u.Username
+            })
+            .ToListAsync();
+
         return Ok(users);
     }
 
@@ -28,7 +38,15 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
-        var user = await _db.Users.FindAsync(id);
+        var user = await _db.Users
+            .Where(u => u.Id == id)
+            .Select(u => new
+            {
+                u.Id,
+                u.Name,
+                u.Username
+            })
+            .FirstOrDefaultAsync();
 
         if (user == null)
             return NotFound();
