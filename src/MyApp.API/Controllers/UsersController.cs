@@ -1,3 +1,4 @@
+using System.Security.Claims;
 namespace MyApp.API.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
@@ -38,6 +39,18 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
+        var currentUserId = User.FindFirstValue(
+            ClaimTypes.NameIdentifier
+        );
+
+        var isAdmin = User.IsInRole("Admin");
+
+        if (!int.TryParse(currentUserId, out var userId))
+            return Unauthorized();
+
+        if (!isAdmin && userId != id)
+            return Forbid();
+
         var user = await _db.Users
             .Where(u => u.Id == id)
             .Select(u => new
