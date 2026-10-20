@@ -82,6 +82,7 @@ public class UsersController : ControllerBase
 
     // DELETE: api/users/1
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var user = await _db.Users.FindAsync(id);

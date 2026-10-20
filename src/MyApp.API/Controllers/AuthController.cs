@@ -51,7 +51,8 @@ public class AuthController : ControllerBase
         var user = new User
         {
             Name = request.Name.Trim(),
-            Username = username
+            Username = username,
+            Role = "User" // Mặc định role là "User"
         };
 
         // 3. Băm mật khẩu
@@ -123,15 +124,10 @@ public class AuthController : ControllerBase
         // 5. Tạo claims cho người dùng
         var claims = new[]
         {
-        new Claim(
-            ClaimTypes.NameIdentifier,
-            user.Id.ToString()
-        ),
-        new Claim(
-            ClaimTypes.Name,
-            user.Username
-        )
-    };
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role)
+        };
 
         // 6. Tạo khóa ký token
         var key = new SymmetricSecurityKey(
@@ -152,8 +148,7 @@ public class AuthController : ControllerBase
             signingCredentials: credentials
         );
 
-        var accessToken = new JwtSecurityTokenHandler()
-            .WriteToken(token);
+        var accessToken = new JwtSecurityTokenHandler().WriteToken(token);
 
         // 8. Trả kết quả
         return Ok(new

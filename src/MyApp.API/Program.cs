@@ -14,7 +14,7 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 Console.WriteLine($"Environment: {builder.Environment.EnvironmentName}");
 
 // Add services to the container.
-builder.Services.AddControllers();
+// builder.Services.AddControllers(); // Use this if you want to use API only, not MVC
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllersWithViews();
@@ -77,17 +77,7 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapGet("/", () => "Hello .NET Docker Container Hot Reload!");
-
-app.MapGet("/db-test", async (AppDbContext db) =>
-{
-    return await db.Database.CanConnectAsync();
-});
-
-app.MapGet("/users", async (AppDbContext db) =>
-{
-    return await db.Users.ToListAsync();
-});
+app.MapGet("/db-test", async (AppDbContext db) => await db.Database.CanConnectAsync());
 
 app.MapControllerRoute(
     name: "default",

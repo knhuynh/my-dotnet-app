@@ -20,4 +20,8 @@ public class User
 
     [Required]
     public string PasswordHash { get; set; } = "";
+
+    [Required]
+    [MaxLength(20)]
+    public string Role { get; set; } = "User";
 }
