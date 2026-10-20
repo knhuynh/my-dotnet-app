@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Docker: Attach .NET",
+      "type": "coreclr",
+      "request": "attach",
+      "processName": "MyApp.API",
+      "pipeTransport": {
+        "pipeCwd": "${workspaceFolder}",
+        "pipeProgram": "docker",
+        "pipeArgs": ["exec", "-i", "dotnet_app"],
+        "debuggerPath": "/vsdbg/vsdbg",
+        "quoteArgs": false
+      },
+      "sourceFileMap": {
+        "/app": "${workspaceFolder}/src/MyApp.API"
+      },
+      "justMyCode": false,
+      "requireExactSource": false,
+      "logging": {
+        "moduleLoad": true
+      }
+    }
+  ]
+}

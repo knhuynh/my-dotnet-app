@@ -81,6 +81,8 @@ app.UseAuthorization();
 
 app.MapGet("/db-test", async (AppDbContext db) => await db.Database.CanConnectAsync());
 
+app.MapGet("/health", () => Results.Ok("Healthy"));
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Todo}/{action=Index}");
