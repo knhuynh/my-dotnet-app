@@ -2,9 +2,23 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unzip procps \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -sSL https://aka.ms/getvsdbgsh \
+       | /bin/sh /dev/stdin -v latest -l /vsdbg
+
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+
 COPY ./src/MyApp.API/*.csproj ./
 RUN dotnet restore
 
 EXPOSE 8080
 
-CMD ["dotnet", "watch", "run", "--urls=http://0.0.0.0:8080", "--non-interactive"]
+# Dùng biến môi trường để bật/tắt hot reload
+CMD sh -c "if [ \"$NO_HOT_RELOAD\" = \"true\" ]; then \
+    dotnet watch run --no-hot-reload --urls=http://0.0.0.0:8080 --non-interactive; \
+    else \
+    dotnet watch run --urls=http://0.0.0.0:8080 --non-interactive; \
+    fi"

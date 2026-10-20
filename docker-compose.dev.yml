@@ -10,10 +10,17 @@ services:
     volumes:
       - ./src/MyApp.API:/app
       - ~/.nuget/packages:/root/.nuget/packages
+      - /app/bin
+      - /app/obj
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: server=db;port=3306;database=myapp;user=root;password=root
       Jwt__Key: ${JWT_KEY}
+      DOTNET_USE_POLLING_FILE_WATCHER: "1"
+      DOTNET_EnableDiagnostics: "1"
+      NO_HOT_RELOAD: "${NO_HOT_RELOAD:-false}"   # ← Mặc định false
+    stdin_open: true
+    tty: true
     depends_on:
       - db
 

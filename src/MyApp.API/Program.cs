@@ -70,6 +70,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// app.Services.GetRequiredService<AppDbContext>().Database.Migrate();
+
 // app.UseLoggingMiddleware();
 
 // app.UseHttpsRedirection(); // if use this to up line https in launchSettings.json to first
