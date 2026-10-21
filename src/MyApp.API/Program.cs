@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MyApp.API.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using MyApp.API.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +61,21 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+    {
+        policy.RequireRole("Admin");
+    });
+    options.AddPolicy("CanUpdateUser", policy =>
+    {
+        policy.AddRequirements(
+            new UpdateUserRequirement()
+        );
+    });
+});
+
+builder.Services.AddScoped<IAuthorizationHandler, UpdateUserAuthorizationHandler>();
 
 var app = builder.Build();
 

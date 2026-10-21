@@ -1,11 +1,12 @@
-using System.Security.Claims;
 namespace MyApp.API.Controllers;
 
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApp.API.Data;
 using MyApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
+using MyApp.API.DTOs;
 
 [ApiController]
 [Authorize]
@@ -13,10 +14,12 @@ using Microsoft.AspNetCore.Authorization;
 public class UsersController : ControllerBase
 {
     private readonly AppDbContext _db;
+    private readonly IAuthorizationService _authorizationService;
 
-    public UsersController(AppDbContext db)
+    public UsersController(AppDbContext db, IAuthorizationService authorizationService)
     {
         _db = db;
+        _authorizationService = authorizationService;
     }
 
     // GET: api/users
@@ -39,16 +42,13 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
-        var currentUserId = User.FindFirstValue(
-            ClaimTypes.NameIdentifier
-        );
+        var authorizationResult =
+        await _authorizationService.AuthorizeAsync(
+            User,
+            id,
+            "CanUpdateUser");
 
-        var isAdmin = User.IsInRole("Admin");
-
-        if (!int.TryParse(currentUserId, out var userId))
-            return Unauthorized();
-
-        if (!isAdmin && userId != id)
+        if (!authorizationResult.Succeeded)
             return Forbid();
 
         var user = await _db.Users
@@ -79,8 +79,17 @@ public class UsersController : ControllerBase
 
     // PUT: api/users/1
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(int id, User input)
+    public async Task<IActionResult> UpdateUser(int id, UpdateUserDto input)
     {
+        var authorizationResult =
+        await _authorizationService.AuthorizeAsync(
+            User,
+            id,
+            "CanUpdateUser");
+
+        if (!authorizationResult.Succeeded)
+            return Forbid();
+
         var user = await _db.Users.FindAsync(id);
 
         if (user == null)
@@ -95,7 +104,7 @@ public class UsersController : ControllerBase
 
     // DELETE: api/users/1
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteUser(int id)
     {
         var user = await _db.Users.FindAsync(id);
