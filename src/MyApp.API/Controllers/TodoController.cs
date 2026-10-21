@@ -7,16 +7,16 @@ using MyApp.API.Models;
 
 public class TodoController : Controller
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _context;
 
     public TodoController(AppDbContext db)
     {
-        _db = db;
+        _context = db;
     }
 
     public async Task<IActionResult> Index()
     {
-        var todos = await _db.TodoItems
+        var todos = await _context.TodoItems
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
 
@@ -29,8 +29,8 @@ public class TodoController : Controller
         todoItem.CreatedAt = DateTime.UtcNow;
         todoItem.UpdatedAt = null;
 
-        _db.TodoItems.Add(todoItem);
-        await _db.SaveChangesAsync();
+        _context.TodoItems.Add(todoItem);
+        await _context.SaveChangesAsync();
 
         return RedirectToAction("Index");
     }
@@ -43,7 +43,7 @@ public class TodoController : Controller
             return RedirectToAction("Index");
         }
 
-        var items = await _db.TodoItems
+        var items = await _context.TodoItems
             .Where(x => ids.Contains(x.Id))
             .ToListAsync();
 
@@ -53,7 +53,7 @@ public class TodoController : Controller
             item.UpdatedAt = DateTime.UtcNow;
         }
 
-        await _db.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return RedirectToAction("Index");
     }
@@ -66,12 +66,12 @@ public class TodoController : Controller
             return RedirectToAction("Index");
         }
 
-        var items = await _db.TodoItems
+        var items = await _context.TodoItems
             .Where(x => ids.Contains(x.Id))
             .ToListAsync();
 
-        _db.TodoItems.RemoveRange(items);
-        await _db.SaveChangesAsync();
+        _context.TodoItems.RemoveRange(items);
+        await _context.SaveChangesAsync();
 
         return RedirectToAction("Index");
     }

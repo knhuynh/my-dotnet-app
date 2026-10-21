@@ -13,12 +13,12 @@ using MyApp.API.DTOs;
 [Route("api/[controller]")] // [controller] là mã giả sẽ được thay bằng tên của controller là: api/users
 public class UsersController : ControllerBase
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _context;
     private readonly IAuthorizationService _authorizationService;
 
     public UsersController(AppDbContext db, IAuthorizationService authorizationService)
     {
-        _db = db;
+        _context = db;
         _authorizationService = authorizationService;
     }
 
@@ -26,7 +26,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetUsers()
     {
-        var users = await _db.Users
+        var users = await _context.Users
             .Select(u => new
             {
                 u.Id,
@@ -51,7 +51,7 @@ public class UsersController : ControllerBase
         if (!authorizationResult.Succeeded)
             return Forbid();
 
-        var user = await _db.Users
+        var user = await _context.Users
             .Where(u => u.Id == id)
             .Select(u => new
             {
@@ -71,8 +71,8 @@ public class UsersController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateUser(User user)
     {
-        _db.Users.Add(user);
-        await _db.SaveChangesAsync();
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
     }
@@ -90,14 +90,14 @@ public class UsersController : ControllerBase
         if (!authorizationResult.Succeeded)
             return Forbid();
 
-        var user = await _db.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null)
             return NotFound();
 
         user.Name = input.Name;
 
-        await _db.SaveChangesAsync();
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
@@ -107,13 +107,13 @@ public class UsersController : ControllerBase
     [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var user = await _db.Users.FindAsync(id);
+        var user = await _context.Users.FindAsync(id);
 
         if (user == null)
             return NotFound();
 
-        _db.Users.Remove(user);
-        await _db.SaveChangesAsync();
+        _context.Users.Remove(user);
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
@@ -124,7 +124,7 @@ public class UsersController : ControllerBase
     {
         Console.WriteLine($"name = '{name}'");
         var pageSize = 10;
-        var users = _db.Users
+        var users = _context.Users
             .Where(u => u.Name.Contains(name))
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
