@@ -7,6 +7,7 @@ using MyApp.API.Data;
 using MyApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using MyApp.API.DTOs;
+using MyApp.API.Services;
 
 [ApiController]
 [Authorize]
@@ -15,11 +16,13 @@ public class UsersController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IUserService _userService;
 
-    public UsersController(AppDbContext db, IAuthorizationService authorizationService)
+    public UsersController(AppDbContext db, IAuthorizationService authorizationService, IUserService userService)
     {
         _context = db;
         _authorizationService = authorizationService;
+        _userService = userService;
     }
 
     // GET: api/users
@@ -90,14 +93,10 @@ public class UsersController : ControllerBase
         if (!authorizationResult.Succeeded)
             return Forbid();
 
-        var user = await _context.Users.FindAsync(id);
+        var success = await _userService.UpdateUserAsync(id, input);
 
-        if (user == null)
+        if (!success)
             return NotFound();
-
-        user.Name = input.Name;
-
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }

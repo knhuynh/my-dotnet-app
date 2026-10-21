@@ -7,6 +7,7 @@ using MyApp.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using MyApp.API.Authorization;
+using MyApp.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -76,6 +77,7 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddScoped<IAuthorizationHandler, UpdateUserAuthorizationHandler>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
