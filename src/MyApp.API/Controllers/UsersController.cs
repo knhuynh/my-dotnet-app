@@ -45,11 +45,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUser(int id)
     {
-        var authorizationResult =
-        await _authorizationService.AuthorizeAsync(
-            User,
-            id,
-            "CanUpdateUser");
+        var authorizationResult = await _authorizationService.AuthorizeAsync(User, id, "CanUpdateUser");
 
         if (!authorizationResult.Succeeded)
             return Forbid();
@@ -84,11 +80,7 @@ public class UsersController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateUser(int id, UpdateUserDto input)
     {
-        var authorizationResult =
-        await _authorizationService.AuthorizeAsync(
-            User,
-            id,
-            "CanUpdateUser");
+        var authorizationResult = await _authorizationService.AuthorizeAsync(User, id, "CanUpdateUser");
 
         if (!authorizationResult.Succeeded)
             return Forbid();
