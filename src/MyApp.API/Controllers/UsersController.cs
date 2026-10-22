@@ -68,12 +68,31 @@ public class UsersController : ControllerBase
 
     // POST: api/users
     [HttpPost]
-    public async Task<IActionResult> CreateUser(User user)
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> CreateUser(CreateUserDto input)
     {
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        try
+        {
+            var user = await _userService.CreateUserAsync(input);
 
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, user);
+            var result = new
+            {
+                user.Id,
+                user.Name,
+                user.Username,
+                user.Role
+            };
+
+            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { message = ex.Message });
+        }
     }
 
     // PUT: api/users/1
@@ -86,6 +105,18 @@ public class UsersController : ControllerBase
             return Forbid();
 
         var success = await _userService.UpdateUserAsync(id, input);
+
+        if (!success)
+            return NotFound();
+
+        return NoContent();
+    }
+
+    [HttpPut("{id}/role")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UpdateUserRole(int id, UpdateUserRoleDto input)
+    {
+        var success = await _userService.UpdateUserRoleAsync(id, input);
 
         if (!success)
             return NotFound();
