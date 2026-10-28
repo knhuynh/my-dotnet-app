@@ -1,10 +1,8 @@
 namespace MyApp.API.Controllers;
 
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MyApp.API.Data;
-using MyApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using MyApp.API.DTOs;
 using MyApp.API.Services;
@@ -25,20 +23,29 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
-    // GET: api/users
-    [HttpGet]
-    public async Task<IActionResult> GetUsers()
-    {
-        var users = await _context.Users
-            .Select(u => new
-            {
-                u.Id,
-                u.Name,
-                u.Username
-            })
-            .ToListAsync();
+    // // GET: api/users
+    // [HttpGet]
+    // public async Task<IActionResult> GetUsers()
+    // {
+    //     var users = await _context.Users
+    //         .Select(u => new
+    //         {
+    //             u.Id,
+    //             u.Name,
+    //             u.Username
+    //         })
+    //         .ToListAsync();
 
-        return Ok(users);
+    //     return Ok(users);
+    // }
+    
+    // GET: api/users?page=1&pageSize=10
+    [HttpGet]
+    public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        var result = await _userService.GetUsersAsync(page, pageSize);
+
+        return Ok(result);
     }
 
     // GET: api/users/1

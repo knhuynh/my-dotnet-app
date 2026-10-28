@@ -17,6 +17,50 @@ public class UserService : IUserService
         _passwordHasher = passwordHasher;
     }
 
+    public async Task<PagedResultDto<UserResponseDto>> GetUsersAsync(int page, int pageSize)
+    {
+        // Kiểm tra tham số phân trang
+        if (page < 1)
+            page = 1;
+
+        if (pageSize < 1)
+            pageSize = 10;
+
+        // Giới hạn số bản ghi tối đa mỗi trang
+        if (pageSize > 100)
+            pageSize = 100;
+
+        // Đếm tổng số user trong database
+        var totalCount = await _context.Users.CountAsync();
+
+        // Tính tổng số trang
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        // Lấy dữ liệu của trang hiện tại
+        var users = await _context.Users
+            .AsNoTracking()
+            .OrderBy(u => u.Id)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(u => new UserResponseDto
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Username = u.Username,
+                Role = u.Role
+            })
+            .ToListAsync();
+
+        return new PagedResultDto<UserResponseDto>
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages,
+            Items = users
+        };
+    }
+
     public async Task<User> CreateUserAsync(CreateUserDto input)
     {
         var role = input.Role.Trim();
