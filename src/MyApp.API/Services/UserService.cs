@@ -17,7 +17,11 @@ public class UserService : IUserService
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<PagedResultDto<UserResponseDto>> GetUsersAsync(int page, int pageSize)
+    public async Task<PagedResultDto<UserResponseDto>> GetUsersAsync(
+        int page,
+        int pageSize,
+        string? search = null,
+        string? role = null)
     {
         // Kiểm tra tham số phân trang
         if (page < 1)
@@ -30,15 +34,28 @@ public class UserService : IUserService
         if (pageSize > 100)
             pageSize = 100;
 
-        // Đếm tổng số user trong database
-        var totalCount = await _context.Users.CountAsync();
+        var usersQuery = _context.Users.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchTerm = search.Trim();
+            usersQuery = usersQuery.Where(u =>
+                u.Name.Contains(searchTerm) || u.Username.Contains(searchTerm));
+        }
+
+        if (!string.IsNullOrWhiteSpace(role))
+        {
+            var roleFilter = role.Trim();
+            usersQuery = usersQuery.Where(u => u.Role == roleFilter);
+        }
+
+        var totalCount = await usersQuery.CountAsync();
 
         // Tính tổng số trang
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
 
         // Lấy dữ liệu của trang hiện tại
-        var users = await _context.Users
-            .AsNoTracking()
+        var users = await usersQuery
             .OrderBy(u => u.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)

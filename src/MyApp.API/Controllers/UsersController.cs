@@ -22,28 +22,16 @@ public class UsersController : ControllerBase
         _authorizationService = authorizationService;
         _userService = userService;
     }
-
-    // // GET: api/users
-    // [HttpGet]
-    // public async Task<IActionResult> GetUsers()
-    // {
-    //     var users = await _context.Users
-    //         .Select(u => new
-    //         {
-    //             u.Id,
-    //             u.Name,
-    //             u.Username
-    //         })
-    //         .ToListAsync();
-
-    //     return Ok(users);
-    // }
     
-    // GET: api/users?page=1&pageSize=10
+    // GET: api/users?page=1&pageSize=10&search=John&role=Admin
     [HttpGet]
-    public async Task<IActionResult> GetUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetUsers(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] string? role = null)
     {
-        var result = await _userService.GetUsersAsync(page, pageSize);
+        var result = await _userService.GetUsersAsync(page, pageSize, search, role);
 
         return Ok(result);
     }
@@ -145,21 +133,6 @@ public class UsersController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
-    }
-
-    // GET: api/users/search?name=John&page=1
-    [HttpGet("search")]
-    public IActionResult Search(string name, int page = 1)
-    {
-        Console.WriteLine($"name = '{name}'");
-        var pageSize = 10;
-        var users = _context.Users
-            .Where(u => u.Name.Contains(name))
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToList();
-
-        return Ok(users);
     }
 
     // POST: api/users/upload
